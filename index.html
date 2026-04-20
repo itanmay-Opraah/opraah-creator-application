@@ -1072,7 +1072,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <script>
   // ─────────────────────────────────────────────
   // PASTE YOUR GOOGLE APPS SCRIPT URL BELOW
-  const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK6TJerMM6dGuHDXNHDkdPcV4l1VQ3lCkZfMyOzG397KXAVOvYYMgyf9I1Xb7iphK19Q/exec';
   // ─────────────────────────────────────────────
 
   // ── SCROLL ANIMATIONS ──
@@ -1097,7 +1097,48 @@ input[type="number"] { -moz-appearance: textfield; }
       revealObserver.observe(el);
     }
   });
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = JSON.parse(e.postData.contents);
 
+  sheet.appendRow([
+    data.timestamp, data.fullName, data.city, data.email,
+    data.phone, data.category, data.platforms,
+    data.ig_followers, data.ig_avgviews,
+    data.yt_subs, data.yt_avgviews,
+    data.other_platform, data.other_reach, data.audience_age,
+    data.brand1_name, data.brand1_link,
+    data.brand2_name, data.brand2_link,
+    data.best_work, data.best_work_why,
+    data.vision_2yr, data.dream_brands, data.anything_else
+  ]);
+
+  MailApp.sendEmail({
+    to: 'tanmay.sawant@opraahfx.com',
+    subject: '🎯 New Creator Application — ' + data.fullName,
+    body:
+      'New application received on Opraah Creator Form.\n\n' +
+      'NAME: ' + data.fullName + '\n' +
+      'CITY: ' + data.city + '\n' +
+      'EMAIL: ' + data.email + '\n' +
+      'PHONE: ' + data.phone + '\n' +
+      'CATEGORY: ' + data.category + '\n' +
+      'PLATFORMS: ' + data.platforms + '\n\n' +
+      'INSTAGRAM\n' +
+      '  Followers: ' + (data.ig_followers || '-') + '\n' +
+      '  Avg Views: ' + (data.ig_avgviews || '-') + '\n\n' +
+      'YOUTUBE\n' +
+      '  Subscribers: ' + (data.yt_subs || '-') + '\n' +
+      '  Avg Views: ' + (data.yt_avgviews || '-') + '\n\n' +
+      'BEST WORK: ' + data.best_work + '\n\n' +
+      'VISION: ' + data.vision_2yr + '\n\n' +
+      'Submitted at: ' + data.timestamp
+  });
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ result: 'success' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
   // Progress bar + nav label on scroll
   window.addEventListener('scroll', () => {
     const doc = document.documentElement;
